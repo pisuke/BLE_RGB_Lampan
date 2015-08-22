@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<!--
+This is an example app that demonstrates how to control an
+RFduino RFD22102 board using BLE (Bluetooth Low Energy).
+
+Please note that this example requires an RFduino RFD22102 plus
+and RFduino RGB LED Button shield (RFD22122). In addition, an
+RFduino USB shield (RFD22121) is needed for programming the
+RFduino from a PC or Mac.
+-->
+<head>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+	<title>Arup Circadian Lampan</title>
+
+	<style>
+		@import 'ui/css/evothings-app.css';
+	</style>
+
+	<style>
+	div {
+		margin: 10px 0px;
+	}
+	button {
+		margin: 5px 0px;
+	}
+	.lead {
+		font-weight: bold;
+	}
+	</style>
+
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script>
+
+	<script src="cordova.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/rfduinoble/rfduinoble.js"></script>
+	<script src="libs/d3/d3.min.js" charset="utf-8"></script>
+
+</head>
+
+<body>
+
+	<header>
+	<!--
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg" />
+		</button>
+	-->
+
+		<img class="logotype" src="ui/images/arup_light_lab.png" alt="Arup Light Lab" />
+
+		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+	</header>
+
+	<h1>Arup Circadian Lampan</h1>
+
+	<p id="info" class="lead">Initializing...</p>
+
+	<button type="button" class="yellow" onclick="app.connect()">
+		Connect
+	</button>
+
+	<br />
+
+	<button type="button" class="blue" onclick="app.ledOn()">
+		Light On
+	</button>
+
+	<button type="button" class="charcoal" onclick="app.ledOff()">
+		Light Off
+	</button>
+	
+	<div id="colourwheel" class="lead"></div>
+
+	<!-- JavaScript code for the app -->
+
+	<script>
+	
+	
+	var ColourPicker = function (defaultColour, colourScale) {
+	    var self = this;
+	    var rainbow = ["#FFD300", "#FFFF00", "#A2F300", "#00DB00", "#00B7FF", "#1449C4", "#4117C7", "#820AC3", "#DB007C", "#FF0000", "#FF7400", "#FFAA00"];
+	    colourScale = colourScale || rainbow;
+	    var colour = function (i) {
+	        return colourScale[i];
+	    };
+	    var item = function (i) {
+	        return i;
+	    };
+	    defaultColour = defaultColour || colour(0);
+	
+	    self.pickedColour = defaultColour;
+	    self.pickedItem = 0;
+	    self.picked = function (colour) {};
+	    self.pickeditem = function (item) {};
+	    var clicked = function () {
+	        self.picked(self.pickedColour);
+	        self.pickeditem(self.pickedItem);
+	    };
+	
+	    var pie = d3.layout.pie().sort(null);
+	    var arc = d3.svg.arc().innerRadius(75).outerRadius(150);
+	
+	    var svg = d3.select("body")
+	        .append("svg")
+	        .attr("width", $(window).width())
+	        .attr("height", $(window).height())
+	        .append("g")
+	        .attr("transform", "translate(150, 150)");
+	
+	    var plate = svg.append("circle")
+	        .attr("fill", defaultColour)
+	        .attr("stroke", "#fff")
+	        .attr("stroke-width", 4)
+	        .attr("r", 75)
+	        .attr("cx", 0)
+	        .attr("cy", 0)
+	        .on("click", clicked);
+	
+	    svg.datum([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+	        .selectAll("path")
+	        .data(pie)
+	        .enter()
+	        .append("path")
+	        .attr("fill", function (d, i) {
+	        return colour(i);
+	    })
+	        .attr("stroke", "#fff")
+	        .attr("stroke-width", 4)
+	        .attr("d", arc)
+	        .on("mouseover", function () {
+	        var fill = d3.select(this).attr("fill");
+	        self.pickedColour = fill;
+	        plate.attr("fill", fill);
+	    })
+	        .on("click", clicked);
+	};
+	
+	
+	// Short name for RFduino BLE library.
+	var rfduinoble = evothings.rfduinoble;
+
+	// Application object.
+	var app = {};
+
+	// Connected device.
+	app.device = null;
+
+	// Turn on LED.
+	app.ledOn = function()
+	{
+		app.device && app.device.writeDataArray(new Uint8Array([3]));
+	};
+
+	// Turn off LED.
+	app.ledOff = function()
+	{
+		app.device && app.device.writeDataArray(new Uint8Array([0]));
+	};
+
+	app.showMessage = function(info)
+	{
+		document.getElementById("info").innerHTML = info;
+	};
+
+	// Called when BLE and other native functions are available.
+	app.onDeviceReady = function()
+	{
+		app.showMessage('Press the yellow button to connect');
+	};
+
+	app.connect = function()
+	{
+		console.log("close");
+		rfduinoble.close();
+
+		// Wait 500 ms for close to complete before connecting.
+		setTimeout(function()
+		{
+			console.log("connecting");
+			app.showMessage("Connecting...");
+			rfduinoble.connect(
+				"ArupLamp",
+				function(device)
+				{
+					console.log("connected");
+					app.showMessage("Connected");
+					app.device = device;
+				},
+				function(errorCode)
+				{
+					app.showMessage("Connect error: " + errorCode);
+				});
+			},
+			500);
+	};
+
+	var picker = new ColourPicker("#00DB00");
+	picker.picked = function (item) {
+	    //alert(colour);
+	    app.showMessage(item);
+	};
+
+	// When the app is fully loaded the "deviceready" event is triggered.
+	document.addEventListener("deviceready", app.onDeviceReady, false);
+	
+
+	
+	</script>
+</body>
+</html>
