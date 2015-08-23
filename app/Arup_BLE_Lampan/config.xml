@@ -5,8 +5,10 @@
         Arup BLE connected Lampan.
     </description>
     <author email="francesco.anselmo@arup.com" href="http://lightlab.arup.com">
-        Arup
+        Francesco Anselmo - Arup Light Lab
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <icon src="www/ui/images/arup_lampan_logo.png" platform="android" width="57" height="57" density="mdpi" />
+    <icon src="www/ui/images/arup_lampan_logo.png" platform="ios" width="57" height="57" density="mdpi" />
 </widget>

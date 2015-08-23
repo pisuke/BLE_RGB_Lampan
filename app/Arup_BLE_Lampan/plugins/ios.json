@@ -15,6 +15,20 @@
                         {
                             "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"BLE\"><param name=\"ios-package\" value=\"EVOBLE\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "framework": {
+                "parents": {
+                    "CoreBluetooth.framework": [
+                        {
+                            "xml": "false",
+                            "count": 1
                         }
                     ]
                 }
@@ -26,6 +40,9 @@
             "PACKAGE_NAME": "com.arup.arupblelampan"
         },
         "org.apache.cordova.console": {
+            "PACKAGE_NAME": "com.arup.arupblelampan"
+        },
+        "com.evothings.ble": {
             "PACKAGE_NAME": "com.arup.arupblelampan"
         }
     },

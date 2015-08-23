@@ -7,8 +7,10 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 <head>
 
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, user-scalable=no
-		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<meta name="viewport" content="width=device-width, user-scalable=no initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+		
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="expires" content="-1" />
 
 	<title>Arup Connected Light</title>
 
@@ -98,6 +100,10 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 	<h1>Arup Connected Light</h1>
 
+		<!--<button id="reload" type="button" class="grey" onclick="window.location.reload(true)">
+			Reload
+		</button>-->
+
 	<p id="info" class="lead">Initializing ...</p>
 
 	<div id="connectedLight">
@@ -108,6 +114,7 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 	<table>
 	<tr><td>
+
 		<button id="connect" type="button" class="yellow" onclick="app.connect()">
 			Connect
 		</button>
@@ -353,13 +360,22 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	{
 		console.log('Received Event: ' + id);
 	};
+	
+	// Stop scanning for devices.
+	app.stopLeScan = function()
+	{
+		console.log('Stopping scan...');
+		ble.stopScan();
+		app.isScanning = false;
+		clearTimeout(app.scanTimer);
+	};
 		
 	app.startLeScan = function()
 	{
 		console.log('startScan');
 		//alert('startScan function');
 	
-		//app.stopLeScan();
+		app.stopLeScan();
 		//alert('startScan function');
 		app.isScanning = true;
 		app.lastScanEvent = new Date();
@@ -457,6 +473,8 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 		greenLed = document.getElementById('greenLed').value = 0;
 		blueLed = document.getElementById('blueLed').value = 0;
 		$("#ledcontrol").hide();
+		app.isScanning = true;
+		app.startLeScan();
 	}
 
 
@@ -471,7 +489,7 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	    app.ledRGB(redLed,greenLed,blueLed)
 	};
 
-	$("#connect").hide();
+	//$("#connect").hide();
 	$("#disconnect").hide();
 	$("#lighton").hide();
 	$("#lightoff").hide();

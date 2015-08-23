@@ -1,16 +1,21 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.arup.arupblelampan" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="loglevel" value="DEBUG" />
-    <name>ArupBLELampanApp</name>
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
-    </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
-    </author>
-    <content src="index.html" />
-    <access origin="*" />
     <feature name="Device">
         <param name="android-package" value="org.apache.cordova.device.Device" />
     </feature>
+    <feature name="BLE">
+        <param name="android-package" value="com.evothings.BLE" />
+    </feature>
+    <name>ArupBLELampanApp</name>
+    <description>
+        Arup BLE connected Lampan.
+    </description>
+    <author email="francesco.anselmo@arup.com" href="http://lightlab.arup.com">
+        Francesco Anselmo - Arup Light Lab
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <icon density="mdpi" height="57" platform="android" src="www/ui/images/arup_lampan_logo.png" width="57" />
+    <icon density="mdpi" height="57" platform="ios" src="www/ui/images/arup_lampan_logo.png" width="57" />
 </widget>
