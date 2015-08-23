@@ -7,8 +7,10 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 <head>
 
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, user-scalable=no
-		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<meta name="viewport" content="width=device-width, user-scalable=no initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+		
+	<meta http-equiv="pragma" content="no-cache" />
+	<meta http-equiv="expires" content="-1" />
 
 	<title>Arup Connected Light</title>
 
@@ -17,7 +19,7 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 		
 		input[type=range] {
 		    -webkit-appearance: none;
-		    background-color: silver;
+		    background-color: #555555;
 		    width: 100%;
 		    height:20px;
 		    margin-top: 15px;
@@ -98,6 +100,10 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 	<h1>Arup Connected Light</h1>
 
+		<!--<button id="reload" type="button" class="grey" onclick="window.location.reload(true)">
+			Reload
+		</button>-->
+
 	<p id="info" class="lead">Initializing ...</p>
 
 	<div id="connectedLight">
@@ -108,6 +114,7 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 	<table>
 	<tr><td>
+
 		<button id="connect" type="button" class="yellow" onclick="app.connect()">
 			Connect
 		</button>
@@ -136,10 +143,11 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 		<!--<p class="topic">LED control</p>-->
 
-		<input type="range" id="redLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
-		<input type="range" id="greenLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
-		<input type="range" id="blueLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+		<input type="range" id="redLed" min="0" max="100" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+		<input type="range" id="greenLed" min="0" max="100" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+		<input type="range" id="blueLed" min="0" max="100" step="1" value="0" onchange="app.sendLedUpdate()"><br>
 
+		<hr>
 	</div>
 	
 	<div id="colourwheel" class="lead"></div>
@@ -148,6 +156,10 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 
 	<script>
 		
+		
+	function rgbToHex(r, g, b) {
+	    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+	}
 	
 	function hexToRgb(hex) {
 	    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -166,7 +178,8 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	
 	var ColourPicker = function (defaultColour, colourScale) {
 	    var self = this;
-	    var rainbow = ["#FFD300", "#FFFF00", "#A2F300", "#00DB00", "#00B7FF", "#1449FF", "#1417FF", "#820AC3", "#DB007C", "#FF0000", "#FF7400", "#FFAA00"];
+	    //var rainbow = ["#FFD300", "#FFFF00", "#A2F300", "#00DB00", "#00B7FF", "#1449FF", "#1417FF", "#820AC3", "#DB007C", "#FF0000", "#FF7400", "#FFAA00"];
+	    var rainbow = ['#fac577','#fbce8a','#fcd79b','#fbdfab','#fbe6ba','#f9ecc7','#f7f1d4','#f4f6df','#f1f9e9','#eefcf2','#ebfef9','#e7ffff'];
 	    colourScale = colourScale || rainbow;
 	    var colour = function (i) {
 	        return colourScale[i];
@@ -190,18 +203,18 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	
 	    var svg = d3.select("#colourwheel")
 	        .append("svg")
-	        .attr("width", 300)
-	        .attr("height", 300)
+	        .attr("width", 320)
+	        .attr("height", 320)
 	        .append("g")
-	        .attr("transform", "translate(150, 150)");
+	        .attr("transform", "translate(160, 155)");
 
 	        //.attr("width", $(window).width())
 	        //.attr("height", $(window).height())
 
 	
 	    var plate = svg.append("circle")
-	        .attr("fill", defaultColour)
-	        .attr("stroke", "#fff")
+	        .attr("fill", '#fac577')
+	        .attr("stroke", "#555555")
 	        .attr("stroke-width", 4)
 	        .attr("r", 75)
 	        .attr("cx", 0)
@@ -216,7 +229,7 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	        .attr("fill", function (d, i) {
 	        return colour(i);
 	    })
-	        .attr("stroke", "#fff")
+	        .attr("stroke", "#555555")
 	        .attr("stroke-width", 4)
 	        .attr("d", arc)
 	        .on("mouseover", function () {
@@ -297,6 +310,8 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 			
 			app.ledRGB(redLed, greenLed, blueLed);
 			app.showMessage(redLed + " " + greenLed + " " + blueLed);
+			//app.showMessage(redLed + " " + greenLed + " " + blueLed + " " + rgbToHex(redLed/100.0*255,greenLed/100.0*255,blueLed/100.0*255));
+			//document.getElementsByTagName("circle").attr("fill", rgbToHex(redLed/100.0*255,greenLed/100.0*255,blueLed/100.0*255) );
 				
 			//app.writeDataToScratch(1, data, onDataWriteSuccess, onDataWriteFailure);
 		}
@@ -353,13 +368,22 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 	{
 		console.log('Received Event: ' + id);
 	};
+	
+	// Stop scanning for devices.
+	app.stopLeScan = function()
+	{
+		console.log('Stopping scan...');
+		ble.stopScan();
+		app.isScanning = false;
+		clearTimeout(app.scanTimer);
+	};
 		
 	app.startLeScan = function()
 	{
 		console.log('startScan');
 		//alert('startScan function');
 	
-		//app.stopLeScan();
+		app.stopLeScan();
 		//alert('startScan function');
 		app.isScanning = true;
 		app.lastScanEvent = new Date();
@@ -380,7 +404,8 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 				$("#connect").show();
 				var p = document.getElementById('deviceList');
 				var li = document.createElement('li');
-				var $a = $("<a href=\"#connected\">" + res + "</a>");
+				//var $a = $("<a href=\"#connected\">" + res + "</a>");
+				var $a = $("<b>" + res + "</b>"); 
 				$(li).append($a);
 				
 				/*
@@ -456,21 +481,23 @@ Arup BLE controlled RGB and Circadian IKEA Lampan modification
 		greenLed = document.getElementById('greenLed').value = 0;
 		blueLed = document.getElementById('blueLed').value = 0;
 		$("#ledcontrol").hide();
+		app.isScanning = true;
+		app.startLeScan();
 	}
 
 
-	var picker = new ColourPicker("#00DB00");
+	var picker = new ColourPicker("#fac577");
 	picker.picked = function (item) {
 	    //alert(colour);
 	    //app.showMessage(item);
-	    app.showMessage(hexToRgb(item).r + " " + hexToRgb(item).g + " " + hexToRgb(item).b);
-	    redLed = document.getElementById('redLed').value = hexToRgb(item).r;
-		greenLed = document.getElementById('greenLed').value = hexToRgb(item).g;
-		blueLed = document.getElementById('blueLed').value = hexToRgb(item).b;
+	    redLed = document.getElementById('redLed').value = hexToRgb(item).r/255*100;
+		greenLed = document.getElementById('greenLed').value = hexToRgb(item).g/255*100;
+		blueLed = document.getElementById('blueLed').value = hexToRgb(item).b/255*100;
 	    app.ledRGB(redLed,greenLed,blueLed)
+	    app.showMessage(hexToRgb(item).r + " " + hexToRgb(item).g + " " + hexToRgb(item).b);
 	};
 
-	$("#connect").hide();
+	//$("#connect").hide();
 	$("#disconnect").hide();
 	$("#lighton").hide();
 	$("#lightoff").hide();

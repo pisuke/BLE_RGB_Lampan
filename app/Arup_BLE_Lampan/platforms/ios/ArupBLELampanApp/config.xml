@@ -19,15 +19,6 @@
     <feature name="LocalStorage">
         <param name="ios-package" value="CDVLocalStorage" />
     </feature>
-    <name>ArupBLELampanApp</name>
-    <description>
-        A sample Apache Cordova application that responds to the deviceready event.
-    </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
-        Apache Cordova Team
-    </author>
-    <content src="index.html" />
-    <access origin="*" />
     <feature name="Device">
         <param name="ios-package" value="CDVDevice" />
     </feature>
@@ -37,4 +28,15 @@
     <feature name="BLE">
         <param name="ios-package" value="EVOBLE" />
     </feature>
+    <name>ArupBLELampanApp</name>
+    <description>
+        Arup BLE connected Lampan.
+    </description>
+    <author email="francesco.anselmo@arup.com" href="http://lightlab.arup.com">
+        Francesco Anselmo - Arup Light Lab
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <icon density="mdpi" height="57" platform="android" src="www/ui/images/arup_lampan_logo.png" width="57" />
+    <icon density="mdpi" height="57" platform="ios" src="www/ui/images/arup_lampan_logo.png" width="57" />
 </widget>

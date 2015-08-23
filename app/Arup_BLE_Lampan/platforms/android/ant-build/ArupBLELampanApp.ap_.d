@@ -75,6 +75,9 @@
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/arup_lampan_logo.png \
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/arup_lampan_logo.psd \
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/arup_light_lab.png \
+/Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/background.jpg \
+/Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/background_backup.jpg \
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/lampan.jpg \
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/menu.svg \
+/Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/assets/www/ui/images/post_building.jpg \
 /Code/Repositories/github/BLE_RGB_Lampan/app/Arup_BLE_Lampan/platforms/android/ant-build/AndroidManifest.xml \
