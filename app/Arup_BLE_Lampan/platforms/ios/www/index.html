@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<!--
+Arup BLE controlled RGB and Circadian IKEA Lampan modification
+2015-08-23 Francesco Anselmo - francesco.anselmo@arup.com
+-->
+<head>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, user-scalable=no
+		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+
+	<title>Arup Connected Light</title>
+
+	<style>
+		@import 'ui/css/evothings-app.css';
+		
+		input[type=range] {
+		    -webkit-appearance: none;
+		    background-color: silver;
+		    width: 100%;
+		    height:20px;
+		    margin-top: 15px;
+		    margin-bottom: 15px;
+		}
+
+		input[type="range"]::-webkit-slider-thumb {
+		     -webkit-appearance: none;
+		     border-radius: 2px;
+		    background-color: red;
+		    opacity: 1;
+		    width: 40px;
+		    height: 30px;
+		}
+
+		#redLed::-webkit-slider-thumb {
+		    background-color: red;
+		}
+
+		#greenLed::-webkit-slider-thumb {
+		    background-color: green;
+		}
+
+		#blueLed::-webkit-slider-thumb {
+		    background-color: blue;
+		}
+
+		p.temperatureLabel {
+			font-size: xx-large;
+			text-align: center;
+		}
+
+		p.topic {
+			font-weight: bold;
+		}
+		
+		
+	</style>
+
+	<style>
+	div {
+		margin: 10px 0px;
+	}
+	button {
+		margin: 5px 0px;
+	}
+	.lead {
+		font-weight: bold;
+	}
+	</style>
+
+	<script>
+	// Redirect console.log to Evothings Workbench.
+	if (window.hyper && window.hyper.log) { console.log = hyper.log }
+	</script>
+
+	<script src="cordova.js"></script>
+	<script src="libs/jquery/jquery.js"></script>
+	<script src="libs/evothings/evothings.js"></script>
+	<script src="libs/evothings/rfduinoble/rfduinoble.js"></script>
+	<script src="libs/d3/d3.min.js" charset="utf-8"></script>
+
+</head>
+
+<body>
+
+	<header>
+	<!--
+		<button class="back" onclick="history.back()">
+			<img src="ui/images/arrow-left.svg" />
+		</button>
+	-->
+
+		<img class="logotype" src="ui/images/arup_light_lab.png" alt="Arup Light Lab" />
+
+		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
+	</header>
+
+	<h1>Arup Connected Light</h1>
+
+	<p id="info" class="lead">Initializing ...</p>
+
+	<div id="connectedLight">
+	<ul data-role="listview" id="deviceList">
+		<!--<li>Address RSSI Name</li>-->
+		<li></li>
+	</ul>
+
+	<table>
+	<tr><td>
+		<button id="connect" type="button" class="yellow" onclick="app.connect()">
+			Connect
+		</button>
+	
+		<button id="disconnect" type="button" class="yellow" onclick="app.disconnect()">
+			Disconnect
+		</button>
+	</td></tr>
+	<tr><td>
+	</div>
+
+	<br />
+
+	<button id="lighton" type="button" class="blue" onclick="app.ledOn()">
+		Light On
+	</button>
+
+	<button id="lightoff" type="button" class="charcoal" onclick="app.ledOff()">
+		Light Off
+	</button>
+	
+	
+	<!--<div id="ledControl" style="display:none">-->
+	<div id="ledcontrol" >
+		<hr>
+
+		<!--<p class="topic">LED control</p>-->
+
+		<input type="range" id="redLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+		<input type="range" id="greenLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+		<input type="range" id="blueLed" min="0" max="255" step="1" value="0" onchange="app.sendLedUpdate()"><br>
+
+	</div>
+	
+	<div id="colourwheel" class="lead"></div>
+
+	<!-- JavaScript code for the app -->
+
+	<script>
+		
+	
+	function hexToRgb(hex) {
+	    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+	    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+	    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+	        return r + r + g + g + b + b;
+	    });
+	
+	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	    return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	    } : null;
+	}
+	
+	var ColourPicker = function (defaultColour, colourScale) {
+	    var self = this;
+	    var rainbow = ["#FFD300", "#FFFF00", "#A2F300", "#00DB00", "#00B7FF", "#1449FF", "#1417FF", "#820AC3", "#DB007C", "#FF0000", "#FF7400", "#FFAA00"];
+	    colourScale = colourScale || rainbow;
+	    var colour = function (i) {
+	        return colourScale[i];
+	    };
+	    var item = function (i) {
+	        return i;
+	    };
+	    defaultColour = defaultColour || colour(0);
+	
+	    self.pickedColour = defaultColour;
+	    self.pickedItem = 0;
+	    self.picked = function (colour) {};
+	    self.pickeditem = function (item) {};
+	    var clicked = function () {
+	        self.picked(self.pickedColour);
+	        self.pickeditem(self.pickedItem);
+	    };
+	
+	    var pie = d3.layout.pie().sort(null);
+	    var arc = d3.svg.arc().innerRadius(75).outerRadius(150);
+	
+	    var svg = d3.select("#colourwheel")
+	        .append("svg")
+	        .attr("width", 300)
+	        .attr("height", 300)
+	        .append("g")
+	        .attr("transform", "translate(150, 150)");
+
+	        //.attr("width", $(window).width())
+	        //.attr("height", $(window).height())
+
+	
+	    var plate = svg.append("circle")
+	        .attr("fill", defaultColour)
+	        .attr("stroke", "#fff")
+	        .attr("stroke-width", 4)
+	        .attr("r", 75)
+	        .attr("cx", 0)
+	        .attr("cy", 0)
+	        .on("click", clicked);
+	
+	    svg.datum([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+	        .selectAll("path")
+	        .data(pie)
+	        .enter()
+	        .append("path")
+	        .attr("fill", function (d, i) {
+	        return colour(i);
+	    })
+	        .attr("stroke", "#fff")
+	        .attr("stroke-width", 4)
+	        .attr("d", arc)
+	        .on("mouseover", function () {
+	        var fill = d3.select(this).attr("fill");
+	        self.pickedColour = fill;
+	        plate.attr("fill", fill);
+	    })
+	        .on("click", clicked);
+	};
+	
+	
+	// Short name for RFduino BLE library.
+	var rfduinoble = evothings.rfduinoble;
+
+	// Application object.
+	var app = {};
+	
+	// BLE device scanning will be made with this interval in milliseconds.
+	app.scanInterval = 5000;
+	
+	// Track whether scanning is ongoing to avoid multiple intervals.
+	app.isScanning = false;
+	
+	// Time for last scan event. This is useful for
+	// when the device does not support continuous scan.
+	app.lastScanEvent = 0;
+
+	// Connected device.
+	app.device = null;
+	
+	app.knownDevices = {};
+
+	// Turn on LED.
+	app.ledOn = function()
+	{
+		app.device && app.device.writeDataArray(new Uint8Array([255,255,255]));
+	};
+
+	// Turn off LED.
+	app.ledOff = function()
+	{
+		app.device && app.device.writeDataArray(new Uint8Array([0]));
+	};
+	
+	app.ledRGB = function(R,G,B)
+	{
+		app.device && app.device.writeDataArray(new Uint8Array([R,G,B]));
+	};
+	
+	app.sendLedUpdate = function()
+	{
+		if (app.device) 
+		{
+			// Fetch LED values from UI
+			redLed = document.getElementById('redLed').value;
+			greenLed = document.getElementById('greenLed').value;
+			blueLed = document.getElementById('blueLed').value;
+	
+			// Print out fetched LED values
+			console.log('redLed: ' + redLed + ', greenLed: ' + greenLed + ', blueLed: ' + blueLed);
+	
+			// Create packet to send
+			//data = new Uint8Array([redLed, greenLed, blueLed]);
+	
+			// Callbacks
+			/*
+			function onDataWriteSuccess()
+			{
+				console.log('Succeded to write data.');
+			}
+	
+			function onDataWriteFailure(errorCode)
+			{
+				console.log('Failed to write data with error: ' + errorCode);
+				app.disconnect();
+			};
+			*/
+			
+			app.ledRGB(redLed, greenLed, blueLed);
+			app.showMessage(redLed + " " + greenLed + " " + blueLed);
+				
+			//app.writeDataToScratch(1, data, onDataWriteSuccess, onDataWriteFailure);
+		}
+		else
+		{
+			redLed = document.getElementById('redLed').value = 0;
+			greenLed = document.getElementById('greenLed').value = 0;
+			blueLed = document.getElementById('blueLed').value = 0;
+			app.showMessage(redLed + " " + greenLed + " " + blueLed);
+		}
+	};
+
+
+	app.showMessage = function(info)
+	{
+		document.getElementById("info").innerHTML = info;
+	};
+	
+	app.receivedEvent = function(id)
+	{
+		console.log('Received Event: ' + id);
+	};
+	
+	app.testCharConversion = function()
+	{
+		var fail = false;
+		for (var i = 0; i < 256; i++)
+		{
+			ble.testCharConversion(i, function(s)
+			{
+				s = new Uint8Array(s);
+				if (s[0] != i)
+				{
+					console.log("testCharConversion mismatch: " + s[0] + " " + i);
+					console.log(s);
+					fail = true;
+				}
+				if (i == 255)
+				{
+					if (fail)
+					{
+						console.log("testCharConversion fail!");
+					}
+					else
+					{
+						console.log("testCharConversion success!");
+					}
+				}
+			});
+		}
+	};
+	
+	app.receivedEvent = function(id)
+	{
+		console.log('Received Event: ' + id);
+	};
+		
+	app.startLeScan = function()
+	{
+		console.log('startScan');
+		//alert('startScan function');
+	
+		//app.stopLeScan();
+		//alert('startScan function');
+		app.isScanning = true;
+		app.lastScanEvent = new Date();
+		//app.runScanTimer();
+	
+		ble.startScan(function(r)
+		{
+			//alert('startScan started');
+			//address, rssi, name, scanRecord
+			if (app.knownDevices[r.address])
+			{
+				return;
+			}
+			app.knownDevices[r.address] = r;
+			var res = r.rssi + " " + r.name + " " + r.address;
+			if (r.name == "ArupLamp") {
+				console.log('scan result: ' + res);
+				$("#connect").show();
+				var p = document.getElementById('deviceList');
+				var li = document.createElement('li');
+				var $a = $("<a href=\"#connected\">" + res + "</a>");
+				$(li).append($a);
+				
+				/*
+				$a.bind("click",
+					{address: r.address, name: r.name},
+					app.eventDeviceClicked);
+				*/
+				
+				p.appendChild(li);
+	
+				$("#deviceList").listview("refresh");
+			}
+		}, function(errorCode)
+		{
+			console.log('startScan error: ' + errorCode);
+			alert('startScan error: ' + errorCode);
+		});
+	};
+	
+
+	// Called when BLE and other native functions are available.
+	app.onDeviceReady = function()
+	{
+		app.showMessage('Press the yellow button to connect');
+		ble = evothings.ble;
+		app.receivedEvent('deviceready');
+		app.startLeScan();
+	};
+
+	app.connect = function()
+	{
+		console.log("close");
+		rfduinoble.close();
+
+		// Wait 500 ms for close to complete before connecting.
+		setTimeout(function()
+		{
+			console.log("connecting");
+			app.showMessage("Connecting...");
+			rfduinoble.connect(
+				"ArupLamp",
+				function(device)
+				{
+					console.log("connected");
+					app.showMessage("Connected");
+					app.device = device;
+					$("#connect").hide();
+					$("#disconnect").show();
+					$("#lighton").show();
+					$("#lightoff").show();
+					$("#colourwheel").show();
+					$("#ledcontrol").show();
+				},
+				function(errorCode)
+				{
+					app.showMessage("Connect error: " + errorCode);
+					rfduinoble.close();
+				});
+			},
+			500);
+	};
+	
+	app.disconnect = function()
+	{
+		rfduinoble.close();
+		app.showMessage('Press the yellow button to connect');
+		$("#disconnect").hide();
+		$("#connect").show();
+		$("#lighton").hide();
+		$("#lightoff").hide();
+		$("#colourwheel").hide();
+		redLed = document.getElementById('redLed').value = 0;
+		greenLed = document.getElementById('greenLed').value = 0;
+		blueLed = document.getElementById('blueLed').value = 0;
+		$("#ledcontrol").hide();
+	}
+
+
+	var picker = new ColourPicker("#00DB00");
+	picker.picked = function (item) {
+	    //alert(colour);
+	    //app.showMessage(item);
+	    app.showMessage(hexToRgb(item).r + " " + hexToRgb(item).g + " " + hexToRgb(item).b);
+	    redLed = document.getElementById('redLed').value = hexToRgb(item).r;
+		greenLed = document.getElementById('greenLed').value = hexToRgb(item).g;
+		blueLed = document.getElementById('blueLed').value = hexToRgb(item).b;
+	    app.ledRGB(redLed,greenLed,blueLed)
+	};
+
+	$("#connect").hide();
+	$("#disconnect").hide();
+	$("#lighton").hide();
+	$("#lightoff").hide();
+	$("#colourwheel").hide();
+	$("#ledcontrol").hide();
+
+	// When the app is fully loaded the "deviceready" event is triggered.
+	document.addEventListener("deviceready", app.onDeviceReady, false);
+	
+
+	
+	</script>
+</body>
+</html>
