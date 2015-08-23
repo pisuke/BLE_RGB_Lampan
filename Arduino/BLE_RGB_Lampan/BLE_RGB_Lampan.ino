@@ -1,3 +1,8 @@
+/*
+ * Arup BLE RGB and Circadian IKEA Lampan modification using the Adafruit LPD8806 LED string and RFduino
+ * 2015-08-23 Francesco Anselmo - francesco.anselmo@arup.com
+ */
+
 #include "LPD8806.h"
 #include <SPI.h>
 #include <RFduinoBLE.h>
@@ -111,8 +116,14 @@ void RFduinoBLE_onConnect()
 void RFduinoBLE_onDisconnect()
 {
   Serial.println("RFduino BLE disconnected");
+  colorWipe( lampan.Color(255, 0, 0), 10 );
+  colorWipe( lampan.Color(0, 0, 0), 10 );
+  colorWipe( lampan.Color(255, 0, 0), 10 );
+  colorWipe( lampan.Color(0, 0, 0), 10 );
+  colorWipe( lampan.Color(255, 0, 0), 10 );
+  colorWipe( lampan.Color(0, 0, 0), 10 );
   // don't leave the leds on after disconnection
-  colorWipe( lampan.Color(0, 0, 0), 0 );
+  colorWipe( lampan.Color(0, 0, 0), 10 );
 }
 
 void RFduinoBLE_onReceive(char *data, int len)
@@ -120,7 +131,28 @@ void RFduinoBLE_onReceive(char *data, int len)
   // if the first byte is 0x01 / on / true
   Serial.println("Received data over BLE");
   Serial.println(len);
-  Serial.println(data[0]);
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  if (len==3) {
+    uint8_t r = data[0];
+    uint8_t g = data[1];
+    uint8_t b = data[2];
+    Serial.println(r);
+    Serial.println(g);
+    Serial.println(b);
+    colorWipe( lampan.Color(r, g, b), 50 );
+    Serial.println("Turn light on");
+  } else if (len==1) {
+    uint8_t myByte = data[0]; // store first char in array to myByte 
+    Serial.println(myByte); // print myByte via serial
+    if (myByte==0) {
+      colorWipe( lampan.Color(0, 0, 0), 50 );
+      Serial.println("Turn light off");  
+    }
+  }
+
+  /*
   if (data[0])
   {
     colorWipe( lampan.Color(255, 255, 255), 50 );
@@ -131,6 +163,7 @@ void RFduinoBLE_onReceive(char *data, int len)
     colorWipe( lampan.Color(0, 0, 0), 50 );
     Serial.println("Turn light off");
   }
+  */
 }
 
 void Off(uint8_t wait) {

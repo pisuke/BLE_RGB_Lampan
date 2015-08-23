@@ -1,13 +1,8 @@
 <!DOCTYPE html>
 <html>
 <!--
-This is an example app that demonstrates how to control an
-RFduino RFD22102 board using BLE (Bluetooth Low Energy).
-
-Please note that this example requires an RFduino RFD22102 plus
-and RFduino RGB LED Button shield (RFD22122). In addition, an
-RFduino USB shield (RFD22121) is needed for programming the
-RFduino from a PC or Mac.
+Arup BLE controlled RGB and Circadian IKEA Lampan modification
+2015-08-23 Francesco Anselmo - francesco.anselmo@arup.com
 -->
 <head>
 
@@ -15,7 +10,7 @@ RFduino from a PC or Mac.
 	<meta name="viewport" content="width=device-width, user-scalable=no
 		initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
 
-	<title>Arup Circadian Lampan</title>
+	<title>Arup Connected Light</title>
 
 	<style>
 		@import 'ui/css/evothings-app.css';
@@ -60,23 +55,33 @@ RFduino from a PC or Mac.
 		<!--<button class="menu" onclick=""><img src="ui/images/menu.svg" /></button>-->
 	</header>
 
-	<h1>Arup Circadian Lampan</h1>
+	<h1>Arup Connected Light</h1>
 
-	<p id="info" class="lead">Initializing...</p>
+	<p id="info" class="lead">Initializing ...</p>
 
-	<button type="button" class="yellow" onclick="app.connect()">
-		Connect
-	</button>
+	<table>
+	<tr><td>
+		<button id="connect" type="button" class="yellow" onclick="app.connect()">
+			Connect
+		</button>
+	
+		<button id="disconnect" type="button" class="yellow" onclick="app.disconnect()">
+			Disconnect
+		</button>
+	</td></tr>
+	<tr><td>
 
 	<br />
 
-	<button type="button" class="blue" onclick="app.ledOn()">
+	<button id="lighton" type="button" class="blue" onclick="app.ledOn()">
 		Light On
 	</button>
 
-	<button type="button" class="charcoal" onclick="app.ledOff()">
+	<button id="lightoff" type="button" class="charcoal" onclick="app.ledOff()">
 		Light Off
 	</button>
+	
+	<!--<div id="colourwheel" class="lead"></div>-->
 	
 	<div id="colourwheel" class="lead"></div>
 
@@ -84,6 +89,20 @@ RFduino from a PC or Mac.
 
 	<script>
 	
+	function hexToRgb(hex) {
+	    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+	    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+	    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+	        return r + r + g + g + b + b;
+	    });
+	
+	    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	    return result ? {
+	        r: parseInt(result[1], 16),
+	        g: parseInt(result[2], 16),
+	        b: parseInt(result[3], 16)
+	    } : null;
+	}
 	
 	var ColourPicker = function (defaultColour, colourScale) {
 	    var self = this;
@@ -109,7 +128,7 @@ RFduino from a PC or Mac.
 	    var pie = d3.layout.pie().sort(null);
 	    var arc = d3.svg.arc().innerRadius(75).outerRadius(150);
 	
-	    var svg = d3.select("body")
+	    var svg = d3.select("#colourwheel")
 	        .append("svg")
 	        .attr("width", $(window).width())
 	        .attr("height", $(window).height())
@@ -157,7 +176,7 @@ RFduino from a PC or Mac.
 	// Turn on LED.
 	app.ledOn = function()
 	{
-		app.device && app.device.writeDataArray(new Uint8Array([3]));
+		app.device && app.device.writeDataArray(new Uint8Array([255,128,64]));
 	};
 
 	// Turn off LED.
@@ -194,6 +213,11 @@ RFduino from a PC or Mac.
 					console.log("connected");
 					app.showMessage("Connected");
 					app.device = device;
+					$("#connect").hide();
+					$("#disconnect").show();
+					$("#lighton").show();
+					$("#lightoff").show();
+					$("#colourwheel").show();
 				},
 				function(errorCode)
 				{
@@ -202,12 +226,31 @@ RFduino from a PC or Mac.
 			},
 			500);
 	};
+	
+	app.disconnect = function()
+	{
+		rfduinoble.close();
+		app.showMessage('Press the yellow button to connect');
+		$("#disconnect").hide();
+		$("#connect").show();
+		$("#lighton").hide();
+		$("#lightoff").hide();
+		$("#colourwheel").hide();
+	}
+
 
 	var picker = new ColourPicker("#00DB00");
 	picker.picked = function (item) {
 	    //alert(colour);
-	    app.showMessage(item);
+	    //app.showMessage(item);
+	    app.showMessage(hexToRgb(item));
+	    alert(hexToRgb(item));
 	};
+
+	$("#disconnect").hide();
+	$("#lighton").hide();
+	$("#lightoff").hide();
+	$("#colourwheel").hide();
 
 	// When the app is fully loaded the "deviceready" event is triggered.
 	document.addEventListener("deviceready", app.onDeviceReady, false);
