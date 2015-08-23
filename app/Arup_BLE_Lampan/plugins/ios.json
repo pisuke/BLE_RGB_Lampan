@@ -13,10 +13,6 @@
                             "count": 1
                         },
                         {
-                            "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
-                            "count": 1
-                        },
-                        {
                             "xml": "<feature name=\"BLE\"><param name=\"ios-package\" value=\"EVOBLE\" /></feature>",
                             "count": 1
                         }
@@ -37,9 +33,6 @@
     },
     "installed_plugins": {
         "org.apache.cordova.device": {
-            "PACKAGE_NAME": "com.arup.arupblelampan"
-        },
-        "org.apache.cordova.console": {
             "PACKAGE_NAME": "com.arup.arupblelampan"
         },
         "com.evothings.ble": {

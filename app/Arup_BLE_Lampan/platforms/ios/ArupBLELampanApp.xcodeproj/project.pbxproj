@@ -38,7 +38,6 @@
 		7E7966E71810823500FA85AD /* icon-small@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 7E7966DD1810823500FA85AD /* icon-small@2x.png */; };
 		D4A0D8761607E02300AEF8BB /* Default-568h@2x~iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D4A0D8751607E02300AEF8BB /* Default-568h@2x~iphone.png */; };
 		E4B40FF85D734CA2B79256D9 /* CDVDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = 8122D7150EC748A8AB035648 /* CDVDevice.m */; };
-		4EA34D4E318F4D379AE610BA /* CDVLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 9D6CB5EE6A8C4E48BED455D4 /* CDVLogger.m */; };
 		29B627A20AA64DC2A4907463 /* EVOBLE.m in Sources */ = {isa = PBXBuildFile; fileRef = E29E0568C1E645B2B1517E2D /* EVOBLE.m */; };
 		870BDFF856274D1A95F0C250 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F0356DA9BFC145DC9DBD8BF4 /* CoreBluetooth.framework */; };
 /* End PBXBuildFile section */
@@ -106,8 +105,6 @@
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = "ArupBLELampanApp/config.xml"; sourceTree = "<group>"; };
 		8122D7150EC748A8AB035648 /* CDVDevice.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVDevice.m"; path = "org.apache.cordova.device/CDVDevice.m"; sourceTree = "<group>"; fileEncoding = 4; };
 		E5480370AD384051A58D9494 /* CDVDevice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVDevice.h"; path = "org.apache.cordova.device/CDVDevice.h"; sourceTree = "<group>"; fileEncoding = 4; };
-		9D6CB5EE6A8C4E48BED455D4 /* CDVLogger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "CDVLogger.m"; path = "org.apache.cordova.console/CDVLogger.m"; sourceTree = "<group>"; fileEncoding = 4; };
-		F3C8E5FB3F744450AA582BDC /* CDVLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "CDVLogger.h"; path = "org.apache.cordova.console/CDVLogger.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		E29E0568C1E645B2B1517E2D /* EVOBLE.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "EVOBLE.m"; path = "com.evothings.ble/EVOBLE.m"; sourceTree = "<group>"; fileEncoding = 4; };
 		77ED824CCD484954B7C4E3B5 /* EVOBLE.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "EVOBLE.h"; path = "com.evothings.ble/EVOBLE.h"; sourceTree = "<group>"; fileEncoding = 4; };
 		F0356DA9BFC145DC9DBD8BF4 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = "CoreBluetooth.framework"; path = "System/Library/Frameworks/CoreBluetooth.framework"; sourceTree = SDKROOT; fileEncoding = 4; };
@@ -233,8 +230,6 @@
 			children = (
 				8122D7150EC748A8AB035648 /* CDVDevice.m */,
 				E5480370AD384051A58D9494 /* CDVDevice.h */,
-				9D6CB5EE6A8C4E48BED455D4 /* CDVLogger.m */,
-				F3C8E5FB3F744450AA582BDC /* CDVLogger.h */,
 				E29E0568C1E645B2B1517E2D /* EVOBLE.m */,
 				77ED824CCD484954B7C4E3B5 /* EVOBLE.h */,
 			);
@@ -432,7 +427,6 @@
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
 				E4B40FF85D734CA2B79256D9 /* CDVDevice.m in Sources */,
-				4EA34D4E318F4D379AE610BA /* CDVLogger.m in Sources */,
 				29B627A20AA64DC2A4907463 /* EVOBLE.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

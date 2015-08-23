@@ -22,9 +22,6 @@
     <feature name="Device">
         <param name="ios-package" value="CDVDevice" />
     </feature>
-    <feature name="Console">
-        <param name="ios-package" value="CDVLogger" />
-    </feature>
     <feature name="BLE">
         <param name="ios-package" value="EVOBLE" />
     </feature>
